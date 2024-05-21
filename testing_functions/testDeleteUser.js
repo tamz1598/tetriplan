@@ -1,8 +1,8 @@
-const deleteUserById = require("../utils/deleteUser");
+const { deleteUserById } = require("../utils/userUtils");
 
 async function testDeleteUser() {
   try {
-    const userIDToDelete = "1";
+    const userIDToDelete = "124124";
     await deleteUserById(userIDToDelete);
   } catch (error) {
     console.error("Error deleting user:", error);

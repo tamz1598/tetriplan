@@ -1,12 +1,12 @@
-const addUser = require("../utils/addUser");
+const { addUser } = require("../utils/userUtils");
 
 async function testAddUser() {
   try {
-    const userID = "1";
-    const username = "gam";
-    const email = "g@jack.com";
+    const username = "jck";
+    const email = "testing2@jack.com";
+    const fullName = "Jack Davenport";
 
-    const newUser = await addUser(userID, username, email);
+    const newUser = await addUser(username, email, fullName);
   } catch (error) {
     console.error("Error adding user:", error);
   }

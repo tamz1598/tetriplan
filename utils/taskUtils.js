@@ -57,7 +57,6 @@ async function getTaskById(taskID) {
   }
 }
 
-
 async function getAllTasksById(userID) {
   try {
     await client.connect();
@@ -155,4 +154,53 @@ async function getAllTasksByIdAndPriority(userID) {
   }
 }
 
-module.exports = {addTask, getTaskById, getAllTasks, getAllTasksById, getAllTasksByIdAndCategory, getTasksByIdSortedByDate, getAllTasksByIdAndPriority};
+async function deleteTaskById(taskID) {
+  try {
+    await client.connect();
+    const database = client.db();
+    const collection = database.collection("tetriplan-tasks");
+    const result = await collection.deleteOne({ taskID: taskID });
+    if (result.deletedCount === 1) {
+      console.log(`Task with ID ${taskID} deleted successfully`);
+    } else {
+      console.log(`Task with ID ${taskID} not found`);
+    }
+  } finally {
+    await client.close();
+  }
+}
+
+async function patchTask(taskID, updatedFields) {
+  try {
+    await client.connect();
+    console.log("Connected to MongoDB Atlas");
+
+    const database = client.db();
+    const collection = database.collection("tetriplan-tasks");
+
+    const result = await collection.updateOne(
+      { taskID: taskID },
+      { $set: updatedFields }
+    );
+
+    if (result.modifiedCount === 1) {
+      console.log(`Task with ID ${taskID} patched/updated successfully`);
+    } else {
+      console.log(`Task with ID ${taskID} not found`);
+    }
+  } finally {
+    await client.close();
+  }
+}
+
+module.exports = {
+  deleteTaskById,
+  addTask,
+  getTaskById,
+  getAllTasks,
+  getAllTasksById,
+  getAllTasksByIdAndCategory,
+  getTasksByIdSortedByDate,
+  getAllTasksByIdAndPriority,
+  patchTask,
+};

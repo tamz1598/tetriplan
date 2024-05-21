@@ -1,5 +1,4 @@
-// main.js
-const getAllUsers = require("../utils/getAllUsers");
+const { getAllUsers } = require("../utils/userUtils");
 
 async function main() {
   try {
@@ -10,5 +9,4 @@ async function main() {
   }
 }
 
-// Execute the main function
 main().catch(console.error);
