@@ -1,0 +1,28 @@
+{
+  "name": "tetriplan",
+  "version": "1.0.0",
+  "description": "",
+  "main": "listen.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tamz1598/tetriplan.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tamz1598/tetriplan/issues"
+  },
+  "homepage": "https://github.com/tamz1598/tetriplan#readme",
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongodb": "^6.6.2",
+    "mongoose": "^8.4.0"
+  }
+}
