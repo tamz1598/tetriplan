@@ -1,4 +1,4 @@
-const getTasksByIdSortedByDate = require("../utils/getTasksByDate");
+const {getTasksByIdSortedByDate} = require("../utils/taskUtils");
 
 async function testGetTasksSortedByDate() {
   try {

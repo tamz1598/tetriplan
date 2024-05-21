@@ -1,4 +1,4 @@
-const getAllTasks = require("../utils/getAllTasks");
+const {getAllTasks} = require("../utils/taskUtils");
 
 async function run() {
   await getAllTasks();

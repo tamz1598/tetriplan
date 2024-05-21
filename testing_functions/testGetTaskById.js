@@ -1,7 +1,7 @@
-const fetchTaskById = require("../utils/getTaskById");
+const {getTaskById} = require("../utils/taskUtils");
 
 async function run() {
-  await fetchTaskById("234");
+  await getTaskById("234");
 }
 
 run().catch(console.error);

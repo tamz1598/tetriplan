@@ -1,36 +1,25 @@
-const addTask = require("../utils/addTask");
+const {addTask} = require("../utils/taskUtils");
 
 async function main() {
-  try {
-    const taskID = 1;
-    const userID = 1;
-    const taskName = "Testing Task again";
-    const description = "This is a test task ";
-    const category = "test";
-    const date = "2024-05-24";
-    const dateAdded = new Date();
-    const startTime = "02:00";
-    const endTime = "13:00";
-    const duration = 60;
-    const completionStatus = false;
-    const label = "Test Label";
-    const priority = "high";
+  const taskObject = {
+    taskID: 234,
+    userID: 1,
+    taskName: "Testing differently",
+    description: "This is a test task ",
+    category:"test",
+    date: "2024-05-24",
+    dateAdded: new Date(),
+    startTime: "02:00",
+    endTime: "13:00",
+    duration: 60,
+    completionStatus: false,
+    label: "Test Label",
+    priority: "high"
+  }
 
-    const newTask = await addTask(
-      taskID,
-      userID,
-      taskName,
-      description,
-      category,
-      date,
-      dateAdded,
-      startTime,
-      endTime,
-      duration,
-      completionStatus,
-      label,
-      priority
-    );
+  try {
+    const newTask = await addTask(taskObject)
+      console.log('here is the new task', newTask);
   } catch (error) {
     console.error("Error adding task:", error);
   }

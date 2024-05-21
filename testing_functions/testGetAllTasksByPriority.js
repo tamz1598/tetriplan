@@ -1,4 +1,4 @@
-const getAllTasksByIdAndPriority = require("../utils/getTasksByPriority");
+const {getAllTasksByIdAndPriority} = require("../utils/taskUtils");
 
 async function testGetAllTasks() {
   try {

@@ -1,4 +1,4 @@
-const getAllTasksByIdAndCategory = require("../utils/getAllTasksByCategory");
+const {getAllTasksByIdAndCategory} = require("../utils/taskUtils");
 
 async function testGetAllTasks() {
   try {
