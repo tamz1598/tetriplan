@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 const app = express();
+const router = express.Router();
 
 mongoose.set("strictQuery", false);
 
@@ -82,6 +83,62 @@ const taskSchema = new mongoose.Schema({
   },
 });
 
+// routers
+
+router.get("/tasks", async (req, res) => {
+  try {
+    const tasks = await Task.find();
+    res.json(tasks);
+  } catch (error) {
+    console.error("Error fetching tasks", error);
+    res.status(400).json({ message: "Error getting tasks" });
+  }
+});
+
+router.post("/tasks", async (req, res) => {
+  try {
+    const task = new Task(req.body);
+    const savedTask = await task.save();
+    res.status(201).json(savedTask);
+  } catch (error) {
+    console.error("Error creating task:", error);
+    res.status(400).json({ message: "Error" });
+  }
+});
+
+router.patch("/tasks/:taskId", async (req, res) => {
+  const { taskId } = req.params;
+  const updates = req.body;
+  try {
+    const updatedTask = await Task.findByIdAndUpdate(taskId, updates);
+  } catch (error) {
+    console.error("Error updating task:", error);
+    res.status(400).json({ message: "Error" });
+  }
+});
+
+router.delete("/tasks/:taskId", async (req, res) => {
+  const { taskId } = req.params;
+
+  try {
+    const deletedTask = await Task.findByIdAndDelete(taskId);
+    console.log("Task deleted");
+  } catch (error) {
+    console.error("Error deleting this task:", error);
+    res.status(400).json({ message: "Error" });
+  }
+});
+
+router.get("/users", async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(400).json({ message: "Error" });
+  }
+});
+
 //error handling
 app.all("*", (request, response, next) => {
   response.status(404).send({ message: "endpoint not found" });
@@ -100,5 +157,4 @@ app.use((err, request, response, next) => {
 const Task = model("Task", taskSchema, "tetriplan-tasks");
 const User = model("User", userSchema, "tetriplan-users");
 
-module.exports = app;
-module.exports = { Task, User };
+module.exports = { app, Task, User };
