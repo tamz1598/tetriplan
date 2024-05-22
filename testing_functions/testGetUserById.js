@@ -1,8 +1,9 @@
 const { getUserById } = require("../utils/userUtils");
+const {ObjectId} = require('mongodb')
 
 async function main() {
   try {
-    const userId = "664b15334e1f1eb9edc1baf4";
+    const userId = "664dc69e915dfbd05facd7c9";
     const user = await getUserById(userId);
     console.log("User:", user);
   } catch (error) {

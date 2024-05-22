@@ -1,7 +1,17 @@
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 const uri =
   "mongodb+srv://admin:tetriplan@cluster0.spo41rp.mongodb.net/tetriplan-tasks";
 const client = new MongoClient(uri);
+
+const priorityValues = {
+  high: 3,
+  medium: 2,
+  low: 1,
+};
+
+const getPriorityValue = (priority) => {
+  return priorityValues[priority] || 0;
+};
 
 async function getAllTasks() {
   try {
@@ -37,6 +47,7 @@ async function addTask(taskObject) {
 }
 
 async function getTaskById(taskID) {
+  console.log(taskID, "this is the taskID")
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
@@ -44,7 +55,7 @@ async function getTaskById(taskID) {
     const database = client.db();
     const collection = database.collection("tetriplan-tasks");
 
-    const task = await collection.findOne({ taskID: taskID });
+    const task = await collection.findOne({ _id: new ObjectId(taskID) });
     if (task) {
       console.log("Found task:", task);
     } else {
@@ -127,11 +138,7 @@ async function getTasksByIdSortedByDate(userID) {
 }
 
 async function getAllTasksByIdAndPriority(userID) {
-  const priorityValues = {
-    high: 3,
-    medium: 2,
-    low: 1,
-  };
+
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
@@ -201,6 +208,8 @@ module.exports = {
   getAllTasksById,
   getAllTasksByIdAndCategory,
   getTasksByIdSortedByDate,
-  getAllTasksByIdAndPriority,
+  getAllTasksByIdAndPriority, 
+  getPriorityValue, 
+  priorityValues,
   patchTask,
 };

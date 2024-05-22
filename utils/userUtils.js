@@ -20,15 +20,15 @@ async function getAllUsers() {
   }
 }
 
-async function getUserById(userId) {
+async function getUserById(userID) {
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
-    console.log("UserID:", userId);
+    console.log("UserID:", userID);
 
     const database = client.db();
     const collection = database.collection("tetriplan-users");
-    const user = await collection.findOne({ _id: new ObjectId(userId) });
+    const user = await collection.findOne({ _id: new ObjectId(userID) });
     console.log("User:", user);
 
     return user;
@@ -69,7 +69,7 @@ async function deleteUserById(userID) {
     await client.connect();
     const database = client.db();
     const collection = database.collection("tetriplan-users");
-    const result = await collection.deleteOne({ userID: userID });
+    const result = await collection.deleteOne({ _id: new ObjectId(userID) });
 
     if (result.deletedCount === 1) {
       console.log(`User with ID ${userID} deleted successfully`);
@@ -81,4 +81,28 @@ async function deleteUserById(userID) {
   }
 }
 
-module.exports = { addUser, deleteUserById, getAllUsers, getUserById };
+async function patchUser(userID, updatedFields) {
+  console.log(userID)
+  try {
+    await client.connect();
+    console.log("Connected to MongoDB Atlas");
+
+    const database = client.db();
+    const collection = database.collection("tetriplan-users");
+
+    const result = await collection.updateOne(
+      { _id: new ObjectId(userID) },
+      { $set: updatedFields }
+    );
+
+    if (result.modifiedCount === 1) {
+      console.log(`User with ID ${userID} patched/updated successfully`);
+    } else {
+      console.log(`User with ID ${userID} not found`);
+    }
+  } finally {
+    await client.close();
+  }
+}
+
+module.exports = { addUser, deleteUserById, getAllUsers, getUserById, patchUser };

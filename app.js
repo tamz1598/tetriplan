@@ -1,8 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
+const { getAllTasks, addTask, getTaskById, getAllTasksById, getAllTasksByIdAndCategory, getTasksByIdSortedByDate, getAllTasksByIdAndPriority, patchTask, deleteTaskById } = require("./utils/taskUtils");
+const { getAllUsers, getUserById, addUser, patchUser, deleteUserById } = require('./utils/userUtils')
 const app = express();
 const router = express.Router();
+
+//read json data  
+app.use(express.json());
 
 mongoose.set("strictQuery", false);
 
@@ -14,130 +18,35 @@ mongoose
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Failed to connect to MongoDB", err));
 
-//schema
-const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  fullName: {
-    type: String,
-    required: true,
-  },
-});
-
-const taskSchema = new mongoose.Schema({
-  userID: {
-    type: Number,
-    required: true,
-  },
-  taskName: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  category: {
-    type: String,
-    required: true,
-  },
-  date: {
-    type: Date,
-  },
-  dateAdded: {
-    type: Date,
-    default: () => Date.now(),
-    immutable: true,
-  },
-  startTime: {
-    type: String,
-    required: true,
-  },
-  endTime: {
-    type: String,
-    required: true,
-  },
-  duration: {
-    type: Number,
-    required: true,
-  },
-  completionStatus: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
-  label: {
-    type: String,
-    required: true,
-  },
-  priority: {
-    type: String,
-    required: true,
-    lowercase: true,
-  },
-});
 
 // routers
+router.get("/tasks", getAllTasks)
 
-router.get("/tasks", async (req, res) => {
-  try {
-    const tasks = await Task.find();
-    res.json(tasks);
-  } catch (error) {
-    console.error("Error fetching tasks", error);
-    res.status(400).json({ message: "Error getting tasks" });
-  }
-});
+router.post("/tasks", addTask)
 
-router.post("/tasks", async (req, res) => {
-  try {
-    const task = new Task(req.body);
-    const savedTask = await task.save();
-    res.status(201).json(savedTask);
-  } catch (error) {
-    console.error("Error creating task:", error);
-    res.status(400).json({ message: "Error" });
-  }
-});
+router.get("/tasks/:taskID", getTaskById)
 
-router.patch("/tasks/:taskId", async (req, res) => {
-  const { taskId } = req.params;
-  const updates = req.body;
-  try {
-    const updatedTask = await Task.findByIdAndUpdate(taskId, updates);
-  } catch (error) {
-    console.error("Error updating task:", error);
-    res.status(400).json({ message: "Error" });
-  }
-});
+router.get("/tasks/:userID", getAllTasksById)
 
-router.delete("/tasks/:taskId", async (req, res) => {
-  const { taskId } = req.params;
+router.get("/tasks/:userID/:category", getAllTasksByIdAndCategory)
 
-  try {
-    const deletedTask = await Task.findByIdAndDelete(taskId);
-    console.log("Task deleted");
-  } catch (error) {
-    console.error("Error deleting this task:", error);
-    res.status(400).json({ message: "Error" });
-  }
-});
+router.get("/tasks/:userID", getTasksByIdSortedByDate)
 
-router.get("/users", async (req, res) => {
-  try {
-    const users = await User.find();
-    res.json(users);
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(400).json({ message: "Error" });
-  }
-});
+router.get("/tasks/:userID", getAllTasksByIdAndPriority)
+
+router.patch("/tasks/:taskId", patchTask)
+
+router.delete("/tasks/:taskId",deleteTaskById)
+
+router.get("/users", getAllUsers)
+
+router.get("/users/:userID", getUserById)
+
+router.post("/users/", addUser)
+
+router.patch("/users/userID", patchUser)
+
+router.delete("/users/userID", deleteUserById)
 
 //error handling
 app.all("*", (request, response, next) => {
@@ -154,7 +63,5 @@ app.use((err, request, response, next) => {
   response.status(500).send({ message: "internal server error" });
 });
 
-const Task = model("Task", taskSchema, "tetriplan-tasks");
-const User = model("User", userSchema, "tetriplan-users");
 
-module.exports = { app, Task, User };
+module.exports = app;

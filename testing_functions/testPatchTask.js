@@ -6,7 +6,7 @@ async function testPatchTask() {
     const taskIDToUpdate = "1";
     const updatedFields = {
       description: "This is an update!",
-      category: "brand new category",
+      category: "tamya input category",
       endTime: "19:00",
       completionStatus: false,
     };

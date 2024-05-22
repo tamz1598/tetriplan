@@ -1,7 +1,7 @@
 const { getTaskById } = require("../utils/taskUtils");
 
 async function run() {
-  await getTaskById("664cb96495656f4af269a1dd");
+  await getTaskById("6649fcd20578065fb77505ee");
 }
 
 run().catch(console.error);
