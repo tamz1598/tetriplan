@@ -1,8 +1,6 @@
 require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
-const fs = require('fs');
-const path = require('path');
 
 const { getAllTasks, addTask, getTaskById, getAllTasksById, getAllTasksByIdAndCategory, getTasksByIdSortedByDate, getAllTasksByIdAndPriority, patchTask, deleteTaskById } = require("./utils/taskUtils");
 
@@ -17,18 +15,14 @@ mongoose.set("strictQuery", false);
 
 // environment variables, due to the connection string using MONGODB-X509 for authentication rather than hard coding it in.
 const mongoUri = process.env.MONGODB_CONNECT_URI;
-const sslCert = process.env.MONGODB_SSL_CERT;
-const sslKey = process.env.MONGODB_SSL_KEY;
 
-if (!mongoUri || !sslCert || !sslKey) {
-  throw new Error("Environment variables MONGODB_CONNECT_URI, MONGODB_SSL_CERT, and MONGODB_SSL_KEY are not set");
+if (!mongoUri) {
+  throw new Error("MONGODB_CONNECT_URI environment variable is not set");
 }
 
 //connect to mongoose
 mongoose.connect(mongoUri, {
-  sslKey: fs.readFileSync(path.resolve(__dirname, sslKey)),
-  sslCert: fs.readFileSync(path.resolve(__dirname, sslCert)),
-  ssl: true,
+  
 })
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Failed to connect to MongoDB", err));
