@@ -1,4 +1,4 @@
-import dotenv from 'dotenv';
+require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 
@@ -8,7 +8,6 @@ const { getAllUsers, getUserById, addUser, patchUser, deleteUserById } = require
 
 const app = express();
 
-dotenv.config();
 
 //read json data  
 app.use(express.json());
