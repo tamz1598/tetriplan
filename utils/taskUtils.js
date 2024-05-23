@@ -13,7 +13,7 @@ const getPriorityValue = (priority) => {
   return priorityValues[priority] || 0;
 };
 
-async function getAllTasks() {
+async function getAllTasks(req, res) {
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
@@ -21,6 +21,7 @@ async function getAllTasks() {
     const collection = database.collection("tetriplan-tasks");
     const tasks = await collection.find({}).toArray();
     console.log("Found tasks:", tasks);
+    res.json(tasks)
     return tasks;
   } catch (error) {
     console.error("Error retrieving all tasks:", error);
@@ -29,7 +30,9 @@ async function getAllTasks() {
     await client.close();
   }
 }
-async function addTask(taskObject) {
+
+async function addTask(req, res) {
+  const taskObject = req.body;
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
@@ -41,7 +44,7 @@ async function addTask(taskObject) {
     });
     if (!existingUser) {
       console.log("User with the given userID does not exist");
-      return { message: "User not found" };
+      return res.status(404).json({error: "User not found"});
     }
     const existingTask = await taskCollection.findOne({
       userID: taskObject.userID,
@@ -52,21 +55,23 @@ async function addTask(taskObject) {
       console.log(
         `Task already exists for userID: ${taskObject.userID}, taskName: ${taskObject.taskName}, date: ${taskObject.date}`
       );
-      return { message: "Task already exists" };
+      return res.status(404).json({error: "Tasks already exist."});
     }
     const result = await taskCollection.insertOne(taskObject);
     console.log(
       `New task inserted with the following id: ${result.insertedId}`
     );
-    return result;
+    res.status(201).json({ message: "Task added successfully", taskId: result.insertedId })
   } catch (error) {
     console.error("Error adding task:", error);
-    throw new Error("Could not add task");
+    res.status(500).json({ error: "Could not add task"});
   } finally {
     await client.close();
   }
 }
-async function getTaskById(taskID) {
+
+async function getTaskById(req, res) {
+  const { taskID } = req.params;
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
@@ -75,18 +80,21 @@ async function getTaskById(taskID) {
     const task = await collection.findOne({ taskID: taskID });
     if (task) {
       console.log("Found task:", task);
+      res.status(200).json(task);
     } else {
       console.log("No task found with the given taskID");
+      res.status(404).json({ message: "Task not found"});
     }
     return task;
   } catch (error) {
     console.error("Error retrieving task by ID:", error);
-    throw new Error("Could not retrieve task");
+    res.status(500).json({ error: "Could not retrieve task"})
   } finally {
     await client.close();
   }
 }
-async function getAllTasksById(userID) {
+async function getAllTasksById(req, res) {
+  const { userID } = req.params;
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
@@ -95,18 +103,21 @@ async function getAllTasksById(userID) {
     const tasks = await collection.find({ userID: userID }).toArray();
     if (tasks.length === 0) {
       console.log("No tasks found for User ID:", userID);
+      res.status(404).json({ message: "No tasks found for User ID"});
     } else {
       console.log("All Tasks for User ID:", tasks);
+      res.status(200).json(tasks);
     }
     return tasks;
   } catch (error) {
     console.error("Error retrieving tasks by userID:", error);
-    throw new Error("Could not retrieve tasks");
+    res.status(500).json({ error: "Could not retrieve task"})
   } finally {
     await client.close();
   }
 }
-async function getAllTasksByIdAndCategory(userID, category) {
+async function getAllTasksByIdAndCategory(req, res) {
+  const { userID, category } = req.params;
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
@@ -117,23 +128,25 @@ async function getAllTasksByIdAndCategory(userID, category) {
       .toArray();
     if (tasks.length === 0) {
       console.log(
-        `No tasks found for User ID: ${userID} and Category: ${category}`
-      );
+        `No tasks found for User ID: ${userID} and Category: ${category}`);
+        res.status(404).json({ message: "No tasks found for User ID: ${userID} and Category: ${category}`"});
     } else {
       console.log(
         `All Tasks for User ID: ${userID} and Category: ${category}`,
         tasks
       );
+      res.status(200).json(tasks);
     }
     return tasks;
   } catch (error) {
     console.error("Error retrieving tasks by userID and category:", error);
-    throw new Error("Could not retrieve tasks");
+    res.status(500).json({ error: "Could not retrieve tasks" }); 
   } finally {
     await client.close();
   }
 }
-async function getTasksByIdSortedByDate(userID) {
+async function getTasksByIdSortedByDate(req, res) {
+  const { userID } = req.params;
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
@@ -143,18 +156,21 @@ async function getTasksByIdSortedByDate(userID) {
     tasks.sort((a, b) => new Date(a.date) - new Date(b.date));
     if (tasks.length === 0) {
       console.log(`No tasks found for User ID: ${userID}`);
+      res.status(404).json({ message: `No tasks found for User ID: ${userID}` }); 
     } else {
       console.log(`All Tasks for User ID: ${userID}`, tasks);
+      res.status(200).json(tasks);
     }
     return tasks;
   } catch (error) {
     console.error("Error retrieving tasks sorted by date:", error);
-    throw new Error("Could not retrieve tasks");
+    res.status(500).json({ error: "Could not retrieve tasks" });
   } finally {
     await client.close();
   }
 }
-async function getAllTasksByIdAndPriority(userID) {
+async function getAllTasksByIdAndPriority(req, res) {
+  const { userID } = req.params;
   const priorityValues = { high: 3, medium: 2, low: 1 };
   try {
     await client.connect();
@@ -167,8 +183,10 @@ async function getAllTasksByIdAndPriority(userID) {
     );
     if (tasks.length === 0) {
       console.log(`No tasks found for User ID: ${userID}`);
+      res.status(404).json({ message: `No tasks found for User ID: ${userID}` });
     } else {
       console.log(`All Tasks for User ID: ${userID}`, tasks);
+      res.status(200).json(tasks);
     }
     return tasks;
   } catch (error) {
@@ -178,7 +196,8 @@ async function getAllTasksByIdAndPriority(userID) {
     await client.close();
   }
 }
-async function deleteTaskById(taskID) {
+async function deleteTaskById(req, res) {
+  const { taskID } = req.params;
   try {
     await client.connect();
     const database = client.db();
@@ -186,17 +205,21 @@ async function deleteTaskById(taskID) {
     const result = await collection.deleteOne({ taskID: taskID });
     if (result.deletedCount === 1) {
       console.log(`Task with ID ${taskID} deleted successfully`);
+      res.status(200).json({ message: `Task with ID ${taskID} deleted successfully` });
     } else {
       console.log(`Task with ID ${taskID} not found`);
+      res.status(404).json({ message: `Task with ID ${taskID} not found` });
     }
   } catch (error) {
     console.error("Error deleting task:", error);
-    throw new Error("Could not delete task");
+    res.status(500).json({ error: "Could not delete task" });
   } finally {
     await client.close();
   }
 }
-async function patchTask(taskID, updatedFields) {
+async function patchTask(req, res) {
+  const { taskID } = req.params;
+  const updatedFields = req.body;
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
@@ -208,12 +231,14 @@ async function patchTask(taskID, updatedFields) {
     );
     if (result.modifiedCount === 1) {
       console.log(`Task with ID ${taskID} patched/updated successfully`);
+      res.status(200).json({ message: `Task with ID ${taskID} patched/updated successfully` }); 
     } else {
       console.log(`Task with ID ${taskID} not found`);
+      res.status(404).json({ message: `Task with ID ${taskID} not found` });
     }
   } catch (error) {
     console.error("Error updating task:", error);
-    throw new Error("Could not update task");
+    res.status(500).json({ error: "Could not update task" });
   } finally {
     await client.close();
   }
