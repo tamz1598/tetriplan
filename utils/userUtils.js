@@ -1,8 +1,7 @@
 require('dotenv').config();
 const { MongoClient, BSON, ObjectId } = require("mongodb");
 
-const uri = process.env.MONGODB_CONNECT_URI;
-const client = new MongoClient(uri);
+const client = new MongoClient(process.env.MONGODB_CONNECT_URI);
 
 async function getAllUsers() {
   try {

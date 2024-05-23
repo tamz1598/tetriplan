@@ -1,8 +1,7 @@
 require('dotenv').config();
 const { MongoClient, ObjectId } = require("mongodb");
 
-const uri = process.env.MONGODB_CONNECT_URI;
-const client = new MongoClient(uri);
+const client = new MongoClient(process.env.MONGODB_CONNECT_URI);
 
 const priorityValues = {
   high: 3,

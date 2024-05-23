@@ -15,23 +15,24 @@ app.use(express.json());
 mongoose.set("strictQuery", false);
 
 // environment variables, due to the connection string using MONGODB-X509 for authentication rather than hard coding it in.
-const mongoUri = process.env.MONGODB_CONNECT_URI
 
-if (!mongoUri) {
+
+if (!process.env.MONGODB_CONNECT_URI) {
   throw new Error("MONGODB_CONNECT_URI environment variable is not set");
 }
 
+console.log(process.env.MONGODB_CONNECT_URI, "this is the uri")
+
 //connect to mongoose
-mongoose.connect(mongoUri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose
+  .connect(process.env.MONGODB_CONNECT_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((err) => console.error("Failed to connect to MongoDB", err));
 
 const router = express.Router();
 
 // routers
+
 router.get("/tasks", getAllTasks)
 
 router.post("/tasks", addTask)
@@ -59,6 +60,8 @@ router.post("/users/", addUser)
 router.patch("/users/userID", patchUser)
 
 router.delete("/users/userID", deleteUserById)
+
+app.use("/", router);
 
 //error handling
 app.all("*", (request, response, next) => {
