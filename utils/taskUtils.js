@@ -1,6 +1,7 @@
 const { MongoClient, ObjectId } = require("mongodb");
-const uri =
-  "mongodb+srv://admin:tetriplan@cluster0.spo41rp.mongodb.net/tetriplan-tasks";
+require('dotenv').config();
+
+const uri = process.env.MONGODB_CONNECT_URI;
 const client = new MongoClient(uri);
 
 const priorityValues = {
