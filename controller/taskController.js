@@ -1,4 +1,5 @@
 const Task = require('../model/taskModel')
+const User = require('../model/userModel')
 const {ObjectId} = require('mongodb')
 const {getPriorityValue} = require('../utils/taskUtils')
 
@@ -14,11 +15,25 @@ exports.getAllTasks = async (req, res) => {
 
 exports.addTask = async (req, res) => {
     const taskData = req.body;
+    const { username } = req.params;
+
     if(!taskData.description) return res.status(400).end()
+
     try {
-      const newtask = new Task(taskData);
-      const savedTask = await newtask.save();
-      res.status(201).json(savedTask);
+        //find user by username
+        const user = await User.findOne({ username: username });
+    
+        if (!user) {
+          return res.status(404).json({ message: 'user not found' });
+        }
+
+        taskData.userID = new ObjectId(user._id);
+        
+        const newtask = new Task(taskData);
+        const savedTask = await newtask.save();
+        savedTask.completionStatus = !!savedTask.completionStatus;
+        
+        res.status(201).json({savedTask});
     } catch (error) {
       console.error("Error creating task:", error);
       res.status(400).json({ message: "Error" });
@@ -28,82 +43,33 @@ exports.addTask = async (req, res) => {
 exports.getTaskById = async (req, res) => {
     const { taskID } = req.params;
     try {
-        await Task.getTaskById(new ObjectId(taskID));
+        const task = await Task.findById(taskID);
+        console.log(task) // Use findById method from Mongoose
+        if (!task) {
+            return res.status(404).json({ message: "Task not found" });
+        }
+        res.status(200).json({task});
     } catch (error) {
         console.error("Error updating task:", error);
         res.status(400).json({ message: "Error" });
     }
 };
 
-exports.getAllTasksById = async (req, res) => {
-    const { userID } = req.params;
-    try {
-        const tasks = await Task.find({ userID });
-        if(!tasks.length === 0){
-            res.status(200).json(tasks);
-        } else{
-            res.status(404).json({ message: "no tasks found with this id" });
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-exports.getAllTasksByIdAndCategory = async (req, res) => {
-    const { userID, category } = req.params;
-    try {
-        const tasks = await Task.find({ userID, category });
-        if(!tasks.length === 0){
-            res.status(200).json(tasks);
-        } else{
-            res.status(404).json({ message: "no tasks found with this id" });
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-exports.getTasksByIdSortedByDate = async (req, res) => {
-    const { userID } = req.params;
-    try {
-        const tasks = await Task.find({ userID }).sort({ date: -1 });
-        if(!tasks.length === 0){
-            res.status(200).json(tasks);
-        } else{
-            res.status(404).json({ message: "no tasks found with this id" });
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
-exports.getAllTasksByIdAndPriority = async (req, res) => {
-    const { userID } = req.params;
-    const { priority } = req.body;
-
-    if (!priority) {
-        return res.status(404).json( {message: "no priority values found"} )
-    }
-
-    try {
-        const tasks = await Task.find({ userID });
-        tasks.sort((a,b) => getPriorityValue(b.priority) - getPriorityValue(a.priority))
-
-        if(!tasks.length === 0){
-            res.status(200).json(tasks);
-        } else{
-            res.status(404).json({ message: "no tasks found with this id" });
-        }
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
-
 exports.patchTask = async (req, res) => {
-    const { taskId } = req.params;
-    const updates = req.body;
+    const { taskID } = req.params;
+    const updatedFields = req.body;
     try {
-        await Task.findByIdAndUpdate(taskId, updates);
+        const updatedTask = await Task.findByIdAndUpdate(
+            taskID, 
+            updatedFields, 
+            { new: true } // Return the updated document
+        );
+
+        if (updatedTask) {
+            res.status(202).json({ update: updatedTask });
+        } else {
+            res.status(404).json({ message: "Task not found" });
+        }
     } catch (error) {
         console.error("Error updating task:", error);
         res.status(400).json({ message: "Error" });
@@ -111,12 +77,50 @@ exports.patchTask = async (req, res) => {
 };
 
 exports.deleteTaskById = async (req, res) => {
-    const { taskId } = req.params;
+    const { taskID } = req.params;
     try {
-        await Task.findByIdAndDelete(taskId);
+        await Task.findByIdAndDelete(taskID);
         console.log("Task deleted");
     } catch (error) {
         console.error("Error deleting this task:", error);
         res.status(400).json({ message: "Error" });
     }
 };
+
+exports.getAllTasksByUserId = async (req, res) => {
+    const { username } = req.params;
+    const { category, sort } = req.query;
+    console.log(category, "this is in the controller")
+    try {
+        const user = await User.find({ username });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        let query = { userID: user._id };
+        if (category) {
+            query.category = category;
+        }
+
+        let tasks;
+        
+        if (sort === 'date') {
+            tasks = await Task.find(query).sort({ calendar: -1 }); // Sort by date in descending order
+        } else if (sort === 'priority'){
+            tasks = await Task.find(query).sort({ priority: 1 });
+        } else if (sort === 'label') {
+            const { label } = req.query;
+            tasks = await Task.find({ label });
+        } else {
+            tasks = await Task.find(query)
+        }
+        if(!tasks.length === 0){
+            return res.status(200).json({tasks: [] });
+        } else{
+            return res.status(200).json({ tasks });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+

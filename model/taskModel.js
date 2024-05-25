@@ -4,7 +4,7 @@ const { Schema, model } = mongoose;
 // task scheme
 const taskSchema = new Schema({
     userID: {
-      type: Number,
+      type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
     taskName: {
@@ -18,14 +18,6 @@ const taskSchema = new Schema({
     category: {
       type: String,
       required: true,
-    },
-    date: {
-      type: Date,
-    },
-    dateAdded: {
-      type: Date,
-      default: () => Date.now(),
-      immutable: true,
     },
     startTime: {
       type: String,
@@ -52,6 +44,17 @@ const taskSchema = new Schema({
       type: String,
       required: true,
       lowercase: true,
+    },
+    dateAdded: {
+      type: Date,
+      default: () => Date.now(),
+      immutable: true,
+    },
+    __v: {
+      type: Number,
+    },
+    calendar: {
+      type: String,
     },
   });
 

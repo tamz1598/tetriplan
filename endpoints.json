@@ -1,0 +1,55 @@
+{
+    "GET /api": {
+      "description": "serves up a json representation of all the available endpoints of the api"
+    },
+    "GET /api/users": {
+      "description": "serves an array of all users",
+      "queries": []
+    },
+    "POST /api/users:username": {
+      "description": "Adds a user",
+      "queries": []
+    },
+    "PATCH /api/users:username": {
+      "description": "Updates a user",
+      "queries": []
+    },
+    "DELETE /api/users:username": {
+      "description": "Deletes a user",
+      "queries": []
+    },
+    "GET /api/tasks": {
+      "description": "serves an array of all tasks",
+      "queries": [ "category", "priority", "date" ]
+    },
+    "GET /api/tasks/taskID": {
+        "description": "serves a task dependant on taskID",
+        "queries": ["category", "priority", "date"]
+      },
+    "PATCH /api/tasks/taskID": {
+      "description": "Updates a task dependant on taskID",
+      "queries": ["category", "priority", "date"]
+    },
+    "DELETE /api/tasks/taskID": {
+      "description": "Deletes a task dependant on taskID",
+      "queries": ["category", "priority", "date"]
+    },
+    "GET /api/users/:userID/tasks": {
+      "description": "serves an array of tasks dependant on user id",
+      "queries": ["category", "priority", "date"]
+    },
+    "GET /api/users/:userID/tasks/category" : {
+      "description": "serves an array of tasks dependant on category",
+      "queries": ["category", "priority", "date"]
+    },
+    "GET /api/users/:userID/tasks?sort_by=date" : {
+      "description": "serves an array of tasks sorted by date order",
+      "queries": [ "date"]
+    },
+    "GET /api/users/:userID/tasks?sort_by=priority" : {
+      "description": "adds a comment based on article_id",
+      "queries": ["priority"]
+    }
+
+}
+    

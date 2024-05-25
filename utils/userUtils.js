@@ -11,7 +11,7 @@ async function getAllUsers(req, res) {
     const collection = database.collection("tetriplan-users");
     const users = await collection.find({}).toArray();
     console.log("All Users:", users);
-    res.status(200).json(users);
+    res.status(200).json({users});
     return users;
   } catch (error) {
     console.error("Error fetching all users:", error);
@@ -20,29 +20,38 @@ async function getAllUsers(req, res) {
     await client.close();
   }
 }
+
 async function getUserById(req, res) {
-  const { userId } = req.params;
+  const { username } = req.params;
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
-    console.log("UserID:", userId);
+    console.log("UserID:", username);
     const database = client.db();
     const collection = database.collection("tetriplan-users");
-    const user = await collection.findOne({ _id: new ObjectId(userId) });
+    const user = await collection.findOne({ username });
     if (!user) {
       console.log("No user found with the given ID");
-      res.status(404).json({ message: "No user found with the given ID" });
+      res.status(404).json({ message: "user not found" });
+      responseSent = true;
+      return; 
     }
     console.log("User:", user);
-    res.status(200).json(user);
+    res.status(200).json({user});
     return user;
   } catch (error) {
     console.error("Error fetching user by ID:", error);
-    res.status(500).json({ error: "Could not fetch user" });
+    res.status(500).json({ error: "internal server error" });
+    // Check if response has already been sent
+    if (!responseSent) {
+      res.status(500).json({ error: "internal server error" });
+      responseSent = true;
+    }
   } finally {
     await client.close();
   }
 }
+
 async function addUser(req, res) {
   const { username, email, fullName } = req.body;
   try {
@@ -50,23 +59,31 @@ async function addUser(req, res) {
     console.log("Connected to MongoDB Atlas");
     const database = client.db();
     const collection = database.collection("tetriplan-users");
-    const existingUser = await collection.findOne({
-      $or: [{ email }, { username }],
-    });
-    if (existingUser) {
-      console.log("User already exists with the given email or username");
-      res.status(400).json({ message: "User already exists" });
-    } else {
-    const user = {
-      username,
-      email,
-      fullName,
+
+    const existingUser = await collection.findOne({ username });
+
+      if (existingUser) {
+        console.log("username taken");
+        res.status(400).json({ message: "username taken" });
+      } else {
+      const user = {
+        username,
+        email,
+        fullName,
       };
+
       const result = await collection.insertOne(user);
       console.log(
         `New user inserted with the following id: ${result.insertedId}`
       );
-      res.status(201).json({ message: `New user inserted with ID: ${result.insertedId}` }); // Send 201 for created
+      res.status(201).json({
+        savedUser: {
+        userID: result.insertedId.toString(),
+        username,
+        email,
+        fullName,
+        } 
+      }); // Send 201 for created
       return result;
     }
   } catch (error) {
@@ -77,19 +94,23 @@ async function addUser(req, res) {
   }
 }
 async function deleteUserById(req, res) {
-  const { userID } = req.params;
+  const { username } = req.params;
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
     const database = client.db();
     const collection = database.collection("tetriplan-users");
-    const result = await collection.deleteOne({ _id: new ObjectId(userID) });
+
+    const user = await collection.findOne({username})
+    console.log(user._id)
+
+    const result = await collection.deleteOne({ _id: user._id });
     if (result.deletedCount === 1) {
-      console.log(`User with ID ${userID} deleted successfully`);
-      res.status(200).json({ message: `User with ID ${userID} deleted successfully` });
+      console.log(`User deleted successfully`);
+      res.status(204).json({ message: `User deleted successfully` });
     } else {
-      console.log(`User with ID ${userID} not found`);
-      res.status(404).json({ message: `User with ID ${userID} not found` }); 
+      console.log(`User  not found`);
+      res.status(404).json({ message: `User not found` }); 
     }
     return result;
   } catch (error) {
@@ -101,8 +122,11 @@ async function deleteUserById(req, res) {
 }
 
 async function patchUser(req, res) {
-  const { userID } = req.params;
-  const updatedFields = req.body; 
+  const { username } = req.params;
+  const updatedFields = req.body;
+
+  console.log(username, updatedFields)
+
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
@@ -110,17 +134,27 @@ async function patchUser(req, res) {
     const database = client.db();
     const collection = database.collection("tetriplan-users");
 
-    const result = await collection.updateOne(
-      { _id: new ObjectId(userID) },
-      { $set: updatedFields }
+    const user = await collection.findOne({ username })
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    console.log(user._id)
+
+    const result = await collection.findOneAndUpdate(
+      { _id: user._id },
+      { $set: updatedFields },
+      { returnOriginal: false, returnDocument: 'after' }
     );
 
-    if (result.modifiedCount === 1) {
-      console.log(`User with ID ${userID} patched/updated successfully`);
-      res.status(200).json({ message: `User with ID ${userID} patched/updated successfully` });
+    console.log(result)
+
+    if (result) {
+      console.log(`User patched/updated successfully`);
+      res.status(202).json({ update: result });
     } else {
-      console.log(`User with ID ${userID} not found`);
-      res.status(404).json({ message: `User with ID ${userID} not found` });
+      console.log(`User not found`);
+      res.status(404).json({ message: `User not found` });
     }
   } catch (error) {
     console.error("Error updating user:", error);

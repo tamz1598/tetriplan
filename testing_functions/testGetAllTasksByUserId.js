@@ -1,6 +1,6 @@
-const {getAllTasksById} = require("../utils/taskUtils");
+const {getAllTasksByUserId} = require("../utils/taskUtils");
 async function run() {
   const userID = "1";
-  const tasks = await getAllTasksById(userID);
+  const tasks = await getAllTasksByUserId(userID);
 }
 run();

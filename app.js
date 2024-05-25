@@ -2,9 +2,14 @@ require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 
-const { getAllTasks, addTask, getTaskById, getAllTasksById, getAllTasksByIdAndCategory, getTasksByIdSortedByDate, getAllTasksByIdAndPriority, patchTask, deleteTaskById } = require("./utils/taskUtils");
+const { getAllTasks, addTask, getTaskById, getAllTasksByUserId, patchTask, deleteTaskById } = require("./utils/taskUtils");
 
 const { getAllUsers, getUserById, addUser, patchUser, deleteUserById } = require('./utils/userUtils')
+
+const taskController = require('./controller/taskController');
+
+
+const endpoints = require('./endpoints.json');
 
 const app = express();
 
@@ -21,8 +26,6 @@ if (!process.env.MONGODB_CONNECT_URI) {
   throw new Error("MONGODB_CONNECT_URI environment variable is not set");
 }
 
-console.log(process.env.MONGODB_CONNECT_URI, "this is the uri")
-
 //connect to mongoose
 mongoose
   .connect(process.env.MONGODB_CONNECT_URI)
@@ -32,34 +35,33 @@ mongoose
 const router = express.Router();
 
 // routers
+app.get('/api', (req, res) => {
+  res.status(200).send({ endpoints });
+});
 
-router.get("/tasks", getAllTasks)
+router.get("/api/users", getAllUsers) //done
 
-router.post("/tasks", addTask)
+router.get("/api/users/:username", getUserById) //done
 
-router.get("/tasks/:taskID", getTaskById)
+router.post("/api/users/:username", addUser) //done
 
-router.get("/tasks/:userID", getAllTasksById)
+router.patch("/api/users/:username", patchUser) //done
 
-router.get("/tasks/:userID/:category", getAllTasksByIdAndCategory)
+router.delete("/api/users/:username", deleteUserById)
 
-router.get("/tasks/:userID", getTasksByIdSortedByDate)
+router.get("/api/tasks", getAllTasks) //done
 
-router.get("/tasks/:userID", getAllTasksByIdAndPriority)
+router.get("/api/tasks/:taskID", getTaskById) //done
 
-router.patch("/tasks/:taskId", patchTask)
+router.patch("/api/tasks/:taskID", patchTask) //done 
 
-router.delete("/tasks/:taskId",deleteTaskById)
+router.delete("/api/tasks/:taskID", deleteTaskById) //done
 
-router.get("/users", getAllUsers)
+router.post("/api/users/:username/tasks", taskController.addTask) //done
 
-router.get("/users/:userID", getUserById)
+router.get("/api/users/:username/tasks", getAllTasksByUserId) //done
 
-router.post("/users/", addUser)
 
-router.patch("/users/userID", patchUser)
-
-router.delete("/users/userID", deleteUserById)
 
 app.use("/", router);
 

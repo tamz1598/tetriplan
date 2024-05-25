@@ -1,9 +1,13 @@
 const {addTask} = require("../utils/taskUtils");
 
+const mockRequest = {
+  user: {
+    _id: ObjectId('664f18a0ae1408ed6c5fb65c') // Replace "user_id_here" with the actual user ID
+  }
+};
+
 async function main() {
   const taskObject = {
-    taskID: 234,
-    userID: 1,
     taskName: "Testing differently",
     description: "This is a test task ",
     category:"test",
@@ -18,7 +22,7 @@ async function main() {
   }
 
   try {
-    const newTask = await addTask(taskObject)
+    const newTask = await addTask(mockRequest, null, taskObject)
       console.log('here is the new task', newTask);
   } catch (error) {
     console.error("Error adding task:", error);
