@@ -1,19 +1,20 @@
 require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require('cors');
 
 const { getAllTasks, addTask, getTaskById, getAllTasksByUserId, patchTask, deleteTaskById } = require("./utils/taskUtils");
 
 const { getAllUsers, getUserById, addUser, patchUser, deleteUserById } = require('./utils/userUtils')
 
 const taskController = require('./controller/taskController');
-
+const { getRecommendedTasks } = require('./controller/taskController');
 
 const endpoints = require('./endpoints.json');
 
 const app = express();
 
-
+app.use(cors());
 //read json data  
 app.use(express.json());
 
@@ -60,6 +61,8 @@ router.delete("/api/tasks/:taskID", deleteTaskById) //done
 router.post("/api/users/:username/tasks", taskController.addTask) //done
 
 router.get("/api/users/:username/tasks", getAllTasksByUserId) //done
+
+router.get('/api/users/:username/recommended-tasks', getRecommendedTasks);
 
 
 

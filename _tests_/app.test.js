@@ -2,6 +2,7 @@ const request = require('supertest');
 const app = require('../app');
 const { ObjectId } = require('mongodb'); 
 require('jest-sorted');
+const { prepareData } = require('../services/prepareData'); 
 
 describe('tetriPlan', () => {
     //GET api all endpoints
@@ -384,5 +385,37 @@ describe('tetriPlan', () => {
         });
     });
 
+    describe('/api/users/:username/recommended-tasks', () => {
+      beforeAll(async () => {
+        await prepareData(); // Ensure data is prepared before running the test, that way process.exit won't run
+    });
+      test.only("GET 200: Responds with recommended tasks for the user.", () => {
+        return request(app)
+        .get('/api/users/tamz/recommended-tasks')
+        .expect(200)
+        .then(({ body }) => {
+            const { recommendedTasks } = body;
+            expect(Array.isArray(recommendedTasks)).toBe(true);
+            if (recommendedTasks.length > 0) {
+              expect(recommendedTasks[0]).toMatchObject({
+                  _id: expect.any(String),
+                  userID: expect.any(String),
+                  taskName: expect.any(String),
+                  description: expect.any(String),
+                  category: expect.any(String),
+                  startTime: expect.any(String),
+                  endTime: expect.any(String),
+                  duration: expect.any(Number),
+                  completionStatus: expect.any(Boolean),
+                  label: expect.any(String),
+                  priority: expect.any(String),
+                  dateAdded: expect.any(String),
+                  __v: expect.any(Number),
+                  calendar: expect.any(String)
+            });
+          }
+        })
+      });
+    });
    
 });

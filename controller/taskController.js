@@ -1,7 +1,7 @@
 const Task = require('../model/taskModel')
 const User = require('../model/userModel')
 const {ObjectId} = require('mongodb')
-const {getPriorityValue} = require('../utils/taskUtils')
+const { recommendTasks } = require('../services/aiService');
 
 exports.getAllTasks = async (req, res) => {
     try {
@@ -122,5 +122,19 @@ exports.getAllTasksByUserId = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+    
 };
+
+exports.getRecommendedTasks = async (req, res) => {
+    const { username } = req.params;
+    try {
+        const user = await User.findOne({ username: username });
+        const userId = user._id;
+        const recommendedTasks = await recommendTasks(userId);
+        res.status(200).json({ recommendedTasks });
+    } catch (error) {
+        console.error("Error getting recommended tasks:", error);
+        res.status(500).json({ error: "Could not get recommended tasks" });
+    }
+  };
 
