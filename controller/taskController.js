@@ -1,7 +1,7 @@
 const Task = require('../model/taskModel')
 const User = require('../model/userModel')
 const {ObjectId} = require('mongodb')
-const { recommendTasks } = require('../services/aiService');
+// const { recommendTasks } = require('../services/aiService');
 
 exports.getAllTasks = async (req, res) => {
     try {

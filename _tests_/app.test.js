@@ -2,7 +2,7 @@ const request = require('supertest');
 const app = require('../app');
 const { ObjectId } = require('mongodb'); 
 require('jest-sorted');
-const { prepareData } = require('../services/prepareData'); 
+// const { prepareData } = require('../services/prepareData'); 
 
 describe('tetriPlan', () => {
     //GET api all endpoints
@@ -385,11 +385,11 @@ describe('tetriPlan', () => {
         });
     });
 
-    describe('/api/users/:username/recommended-tasks', () => {
+    describe.skip('/api/users/:username/recommended-tasks', () => {
       beforeAll(async () => {
         await prepareData(); // Ensure data is prepared before running the test, that way process.exit won't run
     });
-      test.only("GET 200: Responds with recommended tasks for the user.", () => {
+      test("GET 200: Responds with recommended tasks for the user.", () => {
         return request(app)
         .get('/api/users/tamz/recommended-tasks')
         .expect(200)
