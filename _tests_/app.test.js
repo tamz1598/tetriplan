@@ -2,7 +2,7 @@ const request = require('supertest');
 const app = require('../app');
 const { ObjectId } = require('mongodb'); 
 require('jest-sorted');
-// const { prepareData } = require('../services/prepareData'); 
+const { prepareData } = require('../services/prepareData'); 
 
 describe('tetriPlan', () => {
     //GET api all endpoints
@@ -385,7 +385,7 @@ describe('tetriPlan', () => {
         });
     });
 
-    describe.skip('/api/users/:username/recommended-tasks', () => {
+    describe.only('/api/users/:username/recommended-tasks', () => {
       beforeAll(async () => {
         await prepareData(); // Ensure data is prepared before running the test, that way process.exit won't run
     });

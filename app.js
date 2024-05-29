@@ -8,7 +8,7 @@ const { getAllTasks, addTask, getTaskById, getAllTasksByUserId, patchTask, delet
 const { getAllUsers, getUserById, addUser, patchUser, deleteUserById } = require('./utils/userUtils')
 
 const taskController = require('./controller/taskController');
-// const { getRecommendedTasks } = require('./controller/taskController');
+const { getRecommendedTasks } = require('./controller/taskController');
 
 const endpoints = require('./endpoints.json');
 
@@ -62,7 +62,7 @@ router.post("/api/users/:username/tasks", taskController.addTask) //done
 
 router.get("/api/users/:username/tasks", getAllTasksByUserId) //done
 
-// router.get('/api/users/:username/recommended-tasks', getRecommendedTasks);
+router.get('/api/users/:username/recommended-tasks', getRecommendedTasks);
 
 
 

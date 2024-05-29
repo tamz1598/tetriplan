@@ -34,7 +34,7 @@
       "description": "Deletes a task dependant on taskID",
       "queries": ["category", "priority", "date"]
     },
-    "GET /api/users/:userID/tasks": {
+    "GET /api/users/:username/tasks": {
       "description": "serves an array of tasks dependant on user id",
       "queries": ["category", "priority", "date"]
     },
@@ -42,13 +42,17 @@
       "description": "serves an array of tasks dependant on category",
       "queries": ["category", "priority", "date"]
     },
-    "GET /api/users/:userID/tasks?sort_by=date" : {
+    "GET /api/users/:username/tasks?sort_by=date" : {
       "description": "serves an array of tasks sorted by date order",
       "queries": [ "date"]
     },
-    "GET /api/users/:userID/tasks?sort_by=priority" : {
+    "GET /api/users/:username/tasks?sort_by=priority" : {
       "description": "adds a comment based on article_id",
       "queries": ["priority"]
+    },
+    "GET /api/users/:username/recommended-tasks" : {
+      "description": "fetches the top 5 recommendations for tasks",
+      "queries": [""]
     }
 
 }

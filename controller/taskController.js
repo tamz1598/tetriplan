@@ -1,7 +1,7 @@
 const Task = require('../model/taskModel')
 const User = require('../model/userModel')
 const {ObjectId} = require('mongodb')
-// const { recommendTasks } = require('../services/aiService');
+const { recommendTasks } = require('../services/aiService');
 
 exports.getAllTasks = async (req, res) => {
     try {
@@ -129,8 +129,13 @@ exports.getRecommendedTasks = async (req, res) => {
     const { username } = req.params;
     try {
         const user = await User.findOne({ username: username });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
         const userId = user._id;
-        const recommendedTasks = await recommendTasks(userId);
+        const recommendedTaskIds = await recommendTasks(userId);
+        const recommendedTasks = await Task.find({ _id: { $in: recommendedTaskIds.map(id => id.toString()) } });
         res.status(200).json({ recommendedTasks });
     } catch (error) {
         console.error("Error getting recommended tasks:", error);
