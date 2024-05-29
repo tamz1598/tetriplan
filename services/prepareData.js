@@ -43,14 +43,7 @@ if (process.env.NODE_ENV !== 'test') {
     console.log('Task Index:', taskIndex);
     process.exit();
     });
-} else {
-    prepareData().then(({ matrix, userIndex, taskIndex }) => {
-        console.log('Data prepared');
-        console.log('Matrix:', matrix);
-        console.log('User Index:', userIndex);
-        console.log('Task Index:', taskIndex);
-    });
-}
+} 
 
 
 
