@@ -146,14 +146,19 @@ async function withTimeout(promise, ms) {
 exports.getRecommendedTasks = async (req, res) => {
     const { username } = req.params;
     try {
-        const user = await User.findOne({ username: username });
+        const user = await withTimeout(User.findOne({ username: username }), 5000); //
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
         const userId = user._id;
-        const recommendedTaskIds = await recommendTasks(userId);
-        const recommendedTasks = await Task.find({ _id: { $in: recommendedTaskIds.map(id => id.toString()) } });
+
+         const recommendedTaskIds = await withTimeout(recommendTasks(userId), 10000); 
+
+        const recommendedTasks = await withTimeout(
+            Task.find({ _id: { $in: recommendedTaskIds.map(id => id.toString()) } }),
+            5000 // 5-second timeout for finding tasks
+        );
         res.status(200).json({ recommendedTasks });
     } catch (error) {
         console.error("Error getting recommended tasks:", error);
