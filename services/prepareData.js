@@ -35,15 +35,6 @@ async function prepareData() {
   return { matrix, userIndex, taskIndex, users, tasks };
 }
 
-if (process.env.NODE_ENV !== 'test') {
-    prepareData().then(({ matrix, userIndex, taskIndex }) => {
-    console.log('Data prepared');
-    console.log('Matrix:', matrix);
-    console.log('User Index:', userIndex);
-    console.log('Task Index:', taskIndex);
-    process.exit();
-    });
-} 
 
 
 

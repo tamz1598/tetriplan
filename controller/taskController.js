@@ -125,44 +125,22 @@ exports.getAllTasksByUserId = async (req, res) => {
     
 };
 
-async function withTimeout(promise, ms) {
-    return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-            reject(new Error(`Operation timed out after ${ms} ms`));
-        }, ms);
-
-        promise
-            .then((res) => {
-                clearTimeout(timer);
-                resolve(res);
-            })
-            .catch((err) => {
-                clearTimeout(timer);
-                reject(err);
-            });
-    });
-}
 
 exports.getRecommendedTasks = async (req, res) => {
     const { username } = req.params;
     try {
-        const user = await withTimeout(User.findOne({ username: username }), 5000); //
+        const user = await User.findOne({ username: username });
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
         const userId = user._id;
-
-         const recommendedTaskIds = await withTimeout(recommendTasks(userId), 10000); 
-
-        const recommendedTasks = await withTimeout(
-            Task.find({ _id: { $in: recommendedTaskIds.map(id => id.toString()) } }),
-            5000 // 5-second timeout for finding tasks
-        );
+        const recommendedTaskIds = await recommendTasks(userId);
+        const recommendedTasks = await Task.find({ _id: { $in: recommendedTaskIds.map(id => id.toString()) } });
         res.status(200).json({ recommendedTasks });
     } catch (error) {
         console.error("Error getting recommended tasks:", error);
         res.status(500).json({ error: "Could not get recommended tasks" });
     }
-  };
+};
 
