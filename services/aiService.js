@@ -1,6 +1,24 @@
 const tf = require('@tensorflow/tfjs-node');
 const { prepareData } = require('./prepareData');
 
+function withTimeout(promise, ms) {
+    return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+            reject(new Error(`Operation timed out after ${ms} ms`));
+        }, ms);
+
+        promise
+            .then((res) => {
+                clearTimeout(timer);
+                resolve(res);
+            })
+            .catch((err) => {
+                clearTimeout(timer);
+                reject(err);
+            });
+    });
+}
+
 
 async function recommendTasks(userId) {
     const { matrix, userIndex, taskIndex, users, tasks } = await prepareData();
