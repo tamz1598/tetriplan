@@ -21,11 +21,11 @@ const taskSchema = new Schema({
     },
     startTime: {
       type: String,
-      required: true,
+    
     },
     endTime: {
       type: String,
-      required: true,
+     
     },
     duration: {
       type: Number,
