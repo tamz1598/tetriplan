@@ -45,6 +45,7 @@ exports.addUser = async (req, res) => {
             username: savedUser.username,
             email: savedUser.email,
             fullName: savedUser.fullName,
+            password: savedUser.password,
         }
       });
     } catch (error) {
